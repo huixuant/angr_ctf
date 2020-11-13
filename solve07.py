@@ -13,15 +13,8 @@ def main(argv):
   symbolic_file_size_bytes = 0x40
 
   password = claripy.BVS('password', symbolic_file_size_bytes * 8)
-  
-  file_options = 'r'
   password_file = angr.storage.SimFile(filename, content=password, size=symbolic_file_size_bytes)
-  initial_state.fs.insert('INYXFAJA.txt', password_file)
-
-  symbolic_filesystem = {
-    filename : password_file
-  }
-  initial_state.posix.fs = symbolic_filesystem
+  initial_state.fs.insert(filename, password_file)
 
   simulation = project.factory.simgr(initial_state)
 
@@ -43,9 +36,7 @@ def main(argv):
 
   if simulation.found:
     solution_state = simulation.found[0]
-
     solution = solution_state.solver.eval(password,cast_to=bytes)
-
     print(solution)
   else:
     raise Exception('Could not find the solution')
